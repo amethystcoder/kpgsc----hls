@@ -1,0 +1,9 @@
+- add a config initialization route that would direct the user if there is no configuration
+- add a result monitor (like a div that always shows the result of any request to the backend)
+- add websocket configuration to the backend
+- add the other upload methods (ftp, manual upload, e.t.c)
+- make all video players work with p2p and hls
+- make the video route get all the required video data using the slug
+- make the option to switch from main to hls
+- add video preview to both upload video and edit
+- set a day aside for commenting and cleaning code. And also for seperation of concerns
