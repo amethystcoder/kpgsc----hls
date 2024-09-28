@@ -22,7 +22,7 @@ expressApp.use(express.static(path.join(__dirname,'uploads')))
 const apiRoutes = require('./routes/Apiroutes');
 expressApp.use('/api',apiRoutes);
 
-const PORT = 3000
+const PORT = 3450
 
 expressApp.listen(PORT,()=>{
     console.log("listening on port",PORT)
