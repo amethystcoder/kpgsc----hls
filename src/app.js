@@ -9,11 +9,11 @@ const cpus = os.availableParallelism();
 
 if (cluster.default.isPrimary) {
     if (cpus > 0) {
-        cluster.default.fork()
+        os.cpus().forEach((cpu)=>{
+            cluster.default.fork()
+        })
     }   
 }
-
-console.log(webSocketServer.address())
 
 expressApp.use(express.static(path.join(__dirname,'template')))
 expressApp.use(express.static(path.join(__dirname,'utils')))
