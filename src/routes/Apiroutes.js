@@ -21,7 +21,7 @@ router.get("/health",(req,res)=>{
 
 router.post("/convert/hls",firewall, auth, rateLimit, async (req,res)=>{
     try {
-        let {email,linkId, persistenceId} = req.body
+        let {email,linkId, persistenceId,server_id} = req.body
         let linkData = await DB.linksDB.getLinkUsingId(linkId)
         let linkSource = getSourceName(linkData[0].main_link)
         if (!linkSource || linkSource == '') throw EvalError("Incorrect link provided. Check that the link is either a GDrive, Yandex, Box, OkRu or Direct link")
@@ -36,7 +36,7 @@ router.post("/convert/hls",firewall, auth, rateLimit, async (req,res)=>{
         let fileSize = parseFileSizeToReadable((await fs.promises.stat(`./uploads/${linkData[0].slug}.mp4`)).size)
         req.session.rateLimit++
         let result = DB.hlsLinksDB.createNewHlsLink({
-            link_id:linkId,server_id:'35',file_id:linkData[0].slug,status:true,file_size:fileSize
+            link_id:linkId,server_id:server_id,file_id:linkData[0].slug,status:true,file_size:fileSize
         })
         res.status(202).send({success:true,message:"successful",data:convert})
     } catch (error) {
@@ -48,11 +48,9 @@ router.post("/convert/hls",firewall, auth, rateLimit, async (req,res)=>{
 router.post("/hls/bulkconvert",firewall, auth, rateLimit,async (req,res)=>{
     try {
         //Attempt to finish up later
-        let {email, persistenceId} = req.body
+        let {email, persistenceId,server_id} = req.body
         let authData = await DB.driveAuthDB.getAuthUsingEmail(email)
-        let servers = req.body.serverIds.split(',')
         let links = req.body.links.split(',')
-        let availableServers = await DB.serversDB.getServerUsingType("hls")
         let rateLimitSize = (await DB.settingsDB("rateLimit"))[0].var
         rateLimitSize = parseInt(rateLimitSize)
         for (let index = 0; index < links.length; index++) {
@@ -70,7 +68,7 @@ router.post("/hls/bulkconvert",firewall, auth, rateLimit,async (req,res)=>{
             const convert = await HlsConverter.createHlsFiles(`./uploads/${linkData[0].slug}.mp4`,linkData[0].slug,linkData[0].title,persistenceId)
             let fileSize = parseFileSizeToReadable((await fs.promises.stat(`./uploads/${linkData[0].slug}.mp4`)).size)
             let result = DB.hlsLinksDB.createNewHlsLink({
-                link_id:links[index],server_id:'35',file_id:linkData[0].slug,status:true,file_size:fileSize
+                link_id:links[index],server_id:server_id,file_id:linkData[0].slug,status:true,file_size:fileSize
             })//get server id later
         }
         req.session.rateLimit += links.length
