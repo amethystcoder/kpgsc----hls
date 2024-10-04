@@ -19,7 +19,7 @@ router.get("/health",(req,res)=>{
     }
 })
 
-router.post("/convert/hls",firewall, auth, rateLimit, async (req,res)=>{
+router.post("/convert/hls", auth, rateLimit, async (req,res)=>{
     try {
         let {email,linkId, persistenceId,server_id} = req.body
         let linkData = await DB.linksDB.getLinkUsingId(linkId)

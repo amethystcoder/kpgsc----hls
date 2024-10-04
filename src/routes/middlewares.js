@@ -16,6 +16,14 @@ const firewall = async (req,res,next) => {
         res.status(401).send({success:false,message:"unauthorized"})
     }
 }
+const auth = async (req,res,next) => {
+    try {
+        next()
+    } catch (error) {
+        console.log(error)
+        res.status(401).send({success:false,message:"unauthorized"})
+    }
+}
 
 const rateLimit = async (req,res,next) => {
     try {
@@ -24,7 +32,8 @@ const rateLimit = async (req,res,next) => {
         //get the limit from the DB
         let rateLimit = (await settingsDB.getConfig("rateLimit"))[0].var
         rateLimit = parseInt(rateLimit)
-        if (req.session.requestsMade < rateLimit) {
+        let requestsMade = req.session.requestsMade || 0
+        if (requestsMade < rateLimit) {
             next()
         } else {
             res.status(429).send({success:false,message:"You are doing some really hard work, while we do appreciate it, take a small and come back later"})
@@ -47,5 +56,5 @@ const storage = multer.diskStorage({
 const upload = multer({storage:storage})
 
 module.exports = {
-    auth,authClient,firewall,upload,rateLimit
+    auth,firewall,upload,rateLimit
 }
