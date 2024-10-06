@@ -1,7 +1,7 @@
 const fluentFfmpeg = require('fluent-ffmpeg')
 const Ffmpeg = require('@ffmpeg-installer/ffmpeg')
 const fs = require('fs')
-const {webSocketServer,clients} = require("../routes/websocket")
+const {createWebSocketServer,AddEvents,clients,serverConnection} = require("../routes/websocket")
 const getVideoDuration = require("./getVideoDuration")
 const {convertTimeStampToSeconds} = require("./timeStamps")
 const generateUniqueId = require("./generateUniqueId")
@@ -57,7 +57,7 @@ async function createHlsFiles(filePath,fileName,LinkTitle,persistenceId) {
         ]).addOption('-var_stream_map','v:0,a:0 v:1,a:1 v:2,a:2').output(`${path.join(__dirname,'../uploads/videos/'+fileName+'/'+fileName+'_%v.'+MasterFileExtension)}`)
         .on('error', (err, stdout, stderr) => {
             if (err) {
-                webSocketServer.clients.forEach((client)=>{
+                serverConnection.clients.forEach((client)=>{
                     let clientPersistentId = clients.get(client) ? clients.get(client).persistenceId : ""
                     if(client.readyState === 1 && clientPersistentId === persistenceId){
                         client.send(JSON.stringify({
@@ -79,7 +79,7 @@ async function createHlsFiles(filePath,fileName,LinkTitle,persistenceId) {
             const progressInPercent = (timeStampConvertedToSeconds/VideoDurationInSeconds) * 100
 
             //send the progress back to the client (through websockets or another way)
-            webSocketServer.clients.forEach((client)=>{
+            serverConnection.clients.forEach((client)=>{
                 let clientPersistentId = clients.get(client) ? clients.get(client).persistenceId : ""
                 if(client.readyState === 1 &&  clientPersistentId === persistenceId){
                     client.send(JSON.stringify({
@@ -96,7 +96,7 @@ async function createHlsFiles(filePath,fileName,LinkTitle,persistenceId) {
 /*             //create the master play file since ffmpeg cannnot for some reason
             createMasterPlayFile(fileName,'m3u8') */
             //send the progress back to the client (through websockets or another way)
-            webSocketServer.clients.forEach((client)=>{
+            serverConnection.clients.forEach((client)=>{
                 let clientPersistentId = clients.get(client) ? clients.get(client).persistenceId : ""
                 if(client.readyState === 1 && clientPersistentId === persistenceId){
                     client.send(JSON.stringify({

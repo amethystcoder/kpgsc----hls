@@ -3,7 +3,7 @@ const os = require('os')
 const express = require('express')
 const expressApp = require('./hls_server/server')
 const path = require('path')
-//const { webSocketServer } = require("./routes/websocket")
+let { createWebSocketServer,AddEvents,clients,serverConnection } = require("./routes/websocket")
 
 const cpus = os.availableParallelism();
 
@@ -32,4 +32,9 @@ else {
     expressApp.listen(PORT,()=>{
         console.log("listening on port",PORT)
     })
+
+    //add websocket server
+    serverConnection = createWebSocketServer()
+    //add websocket events
+    AddEvents(serverConnection)
   }
