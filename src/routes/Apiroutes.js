@@ -10,11 +10,41 @@ const Streamer = require('../services/streamer')
 const getIdFromUrl = require('../utils/getIdFromUrl');
 const parseFileSizeToReadable = require('../utils/parseFileSizesToReadable');
 const {auth,firewall,upload,rateLimit} = require("./middlewares")
+const {compareAPIKey,createAPIKey} = require("../utils/apiChecker")
 
 router.get("/health",(req,res)=>{
     try {
         res.json({data:"ok"})
     } catch (error) {
+        res.json({error})
+    }
+})
+
+router.get("/checkApi", auth, rateLimit, async (req,res)=>{
+    try {
+        //console.log(await compareAPIKey('j1yyP9d8XGp4JvpwJAAH3DJ81AodZN','Joshua1'))
+        console.log(await createAPIKey('Joshua2','collinsohiajoshua5@gmail.com'))
+        
+    } catch (error) {
+        console.log(error);
+        res.json({error})
+    }
+})
+
+router.get("/stats/system", auth, rateLimit, async (req,res)=>{
+    try {
+        fs.statfs("/",(err,stats)=>{
+            if (err) return err
+            console.log(stats.bavail)
+            console.log(stats.bfree)
+            console.log(stats.blocks)
+            console.log(stats.bsize)
+            console.log(stats.ffree)
+            res.send("done")
+        })
+        
+    } catch (error) {
+        console.log(error);
         res.json({error})
     }
 })

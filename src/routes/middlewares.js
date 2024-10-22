@@ -39,9 +39,7 @@ const rateLimit = async (req,res,next) => {
             res.status(429).send({success:false,message:"You are doing some really hard work, while we do appreciate it, take a small and come back later"})
         }
     } catch (error) {
-        res.render('../template/error',{
-            error
-        })
+        res.status(500).send({success:false,message:"An error occured processing your request"})
     }
 }
 
