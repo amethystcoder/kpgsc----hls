@@ -1,5 +1,6 @@
 const { settingsDB } = require("../db/DBs")
 const multer = require('multer')
+const {compareAPIKey} = require("../utils/apiChecker")
 
 //firewall middleware
 const firewall = async (req,res,next) => {
@@ -18,7 +19,11 @@ const firewall = async (req,res,next) => {
 }
 const auth = async (req,res,next) => {
     try {
-        next()
+        let apiKey = req.headers['authorization'].split(" ")[1]
+        if (await compareAPIKey(apiKey,req.body.username)) next()
+        else{
+            res.status(401).send({success:false,message:"unauthorized"})
+        }
     } catch (error) {
         console.log(error)
         res.status(401).send({success:false,message:"unauthorized"})

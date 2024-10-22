@@ -10,7 +10,7 @@ const Streamer = require('../services/streamer')
 const getIdFromUrl = require('../utils/getIdFromUrl');
 const parseFileSizeToReadable = require('../utils/parseFileSizesToReadable');
 const {auth,firewall,upload,rateLimit} = require("./middlewares")
-const {compareAPIKey,createAPIKey} = require("../utils/apiChecker")
+const {compareAPIKey,createAPIKey,deleteAPIKey} = require("../utils/apiChecker")
 
 router.get("/health",(req,res)=>{
     try {
@@ -20,11 +20,25 @@ router.get("/health",(req,res)=>{
     }
 })
 
-router.get("/checkApi", auth, rateLimit, async (req,res)=>{
+router.delete("/deletekey/:username", auth, rateLimit, async (req,res)=>{
     try {
-        //console.log(await compareAPIKey('j1yyP9d8XGp4JvpwJAAH3DJ81AodZN','Joshua1'))
-        console.log(await createAPIKey('Joshua2','collinsohiajoshua5@gmail.com'))
-        
+        let username = req.params.username
+        if (await deleteAPIKey(username)) res.send({message:"successful",data:true})
+        else{
+            res.status(404).send({message:"api key not found",data:false})
+        }
+    } catch (error) {
+        console.log(error);
+        res.json({error})
+    }
+})
+
+router.get("/key/:email/:username", auth, rateLimit, async (req,res)=>{
+    try {
+        let username = req.params.username
+        let email = req.params.email
+        let apiKey = await createAPIKey(username,email)
+        res.send({message:"successful",data:apiKey})
     } catch (error) {
         console.log(error);
         res.json({error})
