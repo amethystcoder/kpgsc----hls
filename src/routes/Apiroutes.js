@@ -8,6 +8,7 @@ const DB = require('../db/DBs')
 const generateUniqueId = require('../utils/generateUniqueId')
 const Streamer = require('../services/streamer')
 const getIdFromUrl = require('../utils/getIdFromUrl');
+const {encryptVideoStream, encryptHlsFile} = require('../utils/encryptMediaFile')
 const parseFileSizeToReadable = require('../utils/parseFileSizesToReadable');
 const {auth,firewall,upload,rateLimit} = require("./middlewares")
 const {compareAPIKey,createAPIKey,deleteAPIKey} = require("../utils/apiChecker")
@@ -171,7 +172,9 @@ router.get("/hls/:slug/:slugId",firewall,auth,async (req,res)=>{
         let vidExt = splitVid[splitVid.length - 1]
         let hlsStreamData;
         hlsStreamData = await Streamer.getHlsFileData(slug,listOfAcceptableSegmentExtensions.filter((validExtension)=>validExtension == vidExt).length > 0,slugId)
-        res.status(200).send(hlsStreamData)
+        let EncryptedHlsStreamData = await encryptHlsFile(hlsStreamData)
+        res.status(200).send(EncryptedHlsStreamData)
+        //res.status(200).send(hlsStreamData)
     } catch (error) {
         console.log(error)
         res.send({error:error})
